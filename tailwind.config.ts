@@ -63,11 +63,11 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom AI Agent color palette
-				'ai-dark': '#333446',
-				'ai-slate': '#7F8CAA',
-				'ai-teal': '#B8CFCE',
-				'ai-light': '#EAEFEF',
+				// Updated AI Agent color palette - Modern Purple/Blue Theme
+				'ai-dark': '#1A1B3A',
+				'ai-slate': '#6366F1',
+				'ai-teal': '#8B5CF6',
+				'ai-light': '#F8FAFC',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
