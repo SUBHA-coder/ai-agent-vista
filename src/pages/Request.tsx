@@ -1,7 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { agents } from '../data/agents';
+import { authService } from '../lib/auth';
+import { useAuth } from '../contexts/AuthContext';
 
 const Request = () => {
   const [searchParams] = useSearchParams();
@@ -16,12 +17,32 @@ const Request = () => {
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Request submitted:', formData);
-    setIsSubmitted(true);
+    setError(null);
+    if (!isAuthenticated) {
+      setError('You must be logged in to submit a request.');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await authService.requestAgent({
+        full_name: formData.fullName,
+        email: formData.email,
+        company: formData.company,
+        agent: formData.agentName,
+        requirements: formData.requirements,
+      });
+      setIsSubmitted(true);
+    } catch (err) {
+      setError((err as Error).message || 'Failed to submit request.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -164,11 +185,16 @@ const Request = () => {
                   />
                 </div>
 
+                {error && (
+                  <div className="text-red-600 text-sm text-center">{error}</div>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full bg-ai-dark text-ai-light py-4 px-6 rounded-lg font-semibold hover:bg-ai-slate transition-colors focus:outline-none focus:ring-2 focus:ring-ai-teal focus:ring-offset-2 text-lg"
+                  disabled={isLoading}
+                  className="w-full bg-ai-dark text-ai-light py-4 px-6 rounded-lg font-semibold hover:bg-ai-slate transition-colors focus:outline-none focus:ring-2 focus:ring-ai-teal focus:ring-offset-2 text-lg disabled:opacity-50"
                 >
-                  Submit Request
+                  {isLoading ? 'Submitting...' : 'Submit Request'}
                 </button>
               </form>
             </div>
